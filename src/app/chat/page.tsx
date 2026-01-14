@@ -216,9 +216,9 @@ export default function ChatPage() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2 text-sm text-gray-300">
                     <span className="w-2 h-2 rounded-full bg-green-400" />
-                    Live session • {sessionId}
+                    LO • {sessionId.split('-').pop()}
                   </div>
-                  <div className="text-xs text-gray-400">LegianOS will auto-scroll while responses stream.</div>
+                  <div className="text-xs text-gray-400">Auto-scroll enabled</div>
                 </div>
                 <div className="flex-1 overflow-y-auto custom-scrollbar space-y-6 pr-1" ref={scrollRef}>
                   {messages.map(msg => (
@@ -290,14 +290,9 @@ export default function ChatPage() {
 
             <aside className="flex flex-col gap-4">
               <div className="rounded-3xl border border-white/15 bg-white/5 p-4 shadow-[0_16px_45px_rgba(0,0,0,0.35)] space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <AgentAvatar agentType="legianos" size="sm" className="border-none shadow-[0_8px_24px_rgba(0,0,0,0.35)]" />
-                    <div>
-                      <p className="text-sm text-gray-300">Your Goals</p>
-                      <p className="text-base font-semibold">Track Progress</p>
-                    </div>
-                  </div>
+                <div>
+                  <p className="text-sm text-gray-300">Your Goals</p>
+                  <p className="text-base font-semibold">Track Progress</p>
                 </div>
                 {goals.length === 0 ? (
                   <p className="text-sm text-gray-400">No goals yet. Start a conversation to create your first goal.</p>
