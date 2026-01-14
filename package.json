@@ -1,5 +1,5 @@
 {
-  "name": "nextjs_mastr_demo",
+  "name": "legianos",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -22,11 +22,13 @@
     "@mastra/node-speaker": "^0.1.0",
     "@mastra/voice-openai": "^0.11.10",
     "@mastra/voice-openai-realtime": "^0.11.10",
+    "clsx": "^2.1.1",
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.562.0",
     "next": "16.0.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "tailwind-merge": "^3.4.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {

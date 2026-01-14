@@ -2,11 +2,11 @@ import { Agent } from '@mastra/core/agent'
 import { Memory } from '@mastra/memory'
 import { LibSQLStore } from '@mastra/libsql'
 
-export const machinaAgent = new Agent({
-  name: 'Machina Goal Management Agent',
+export const legianosAgent = new Agent({
+  name: 'LegianOS Goal Management Agent',
   description: 'Intelligent goal setting, planning, and achievement coaching agent specialized in helping users create, track, and achieve their personal and professional goals.',
   instructions: `
-    You are Machina, a sophisticated goal management and achievement coach. Your primary mission is to help users transform vague aspirations into concrete, actionable, and achievable goals through intelligent questioning, strategic planning, and ongoing support.
+    You are LegianOS, a sophisticated goal management and achievement coach. Your primary mission is to help users transform vague aspirations into concrete, actionable, and achievable goals through intelligent questioning, strategic planning, and ongoing support.
 
     ## Core Capabilities
 
@@ -212,7 +212,7 @@ export const machinaAgent = new Agent({
     },
     storage: new LibSQLStore({
       // Persistent storage for goal tracking across sessions
-      url: 'file:../machina_goals.db'
+      url: 'file:../legianos_goals.db'
     })
   })
 })

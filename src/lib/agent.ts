@@ -1,13 +1,28 @@
 "use server"
 
 import { mastra } from "../mastra"
-import Speaker from "@mastra/node-speaker"
-import { getMicrophoneStream } from "@mastra/node-audio"
 import { CoreMessage } from "@mastra/core"
-import { memo } from "react"
+import { ImageAttachment } from "./attachments"
 
-export async function runAgent(prompt: string, threadId: string, userId: string): Promise<string> {
+export async function runAgent(
+    prompt: string,
+    threadId: string,
+    userId: string,
+    options: { images?: ImageAttachment[] } = {}
+): Promise<string> {
     const agent = mastra.getAgent("generalAgent")
+    const images = options.images || []
+
+    const content = images.length > 0
+        ? [
+            { type: "text", text: prompt },
+            ...images.map((img) => ({
+                type: "image",
+                mimeType: img.mimeType,
+                image: img.data
+            }))
+        ]
+        : undefined
 
     // The .network() method enables multi-agent collaboration and routing
     // HOWEVER, I found that generate gives the same results, ie: use those tools, agents and workflows defined within the agent
@@ -19,7 +34,12 @@ export async function runAgent(prompt: string, threadId: string, userId: string)
     //     }
     // }
 
-    const result = await agent.generate(prompt, {
+    const result = await agent.generate(content ? [
+        {
+            role: "user",
+            content
+        }
+    ] : prompt, {
         // Even with memory configured, agents won’t store or recall information unless both thread and resource are provided.
         memory: {
             thread: threadId,
@@ -57,49 +77,6 @@ export async function runAgent(prompt: string, threadId: string, userId: string)
 
 
 
-export async function speak(prompt: string): Promise<void | NodeJS.ReadableStream> {
-    const agent = mastra.getAgent("generalAgent")
-    const audioStream: void | NodeJS.ReadableStream = await agent.voice.speak(prompt)
-    return audioStream
-}
-
-
-export async function transcribe(audio: NodeJS.ReadableStream): Promise<string | void | NodeJS.ReadableStream> {
-    const agent = mastra.getAgent("generalAgent")
-    const transcription = await agent.voice.listen(audio)
-    return transcription
-}
-
-
-export async function runAgentVoice(audio: NodeJS.ReadableStream | Int16Array): Promise<string> {
-    const agent = mastra.getAgent("generalAgent")
-    await agent.voice.connect()
-    // Set up event listeners for responses
-    let finalText = ""
-    const speaker = new Speaker({
-        sampleRate: 24100, // Audio sample rate in Hz - standard for high-quality audio on MacBook Pro
-        channels: 1, // Mono audio output (as opposed to stereo which would be 2)
-        bitDepth: 16, // Bit depth for audio quality - CD quality standard (16-bit resolution)
-    })
-
-    agent.voice.on("writing", ({ text, role }) => {
-        console.log(`${role}: ${text}`)
-        if (role === "assistant") {
-            finalText += text
-        }
-    })
-
-    agent.voice.on("speaker", (stream) => {
-        stream.pipe(speaker)
-    })
-    // The send() method streams audio data in real-time to voice providers for continuous processing.
-    await agent.voice.send(audio)
-    // Trigger the AI to respond
-    await agent.voice.answer()
-    agent.voice.close()
-
-    return finalText
-}
 
 
 // get full conversation history for a specific conversation

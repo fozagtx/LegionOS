@@ -47,7 +47,12 @@ interface AttachedFile {
     type: string;
     preview: string | null;
     uploadStatus: string;
-    content?: string;
+}
+
+interface PastedSnippet {
+    id: string;
+    content: string;
+    timestamp: Date;
 }
 
 interface FilePreviewCardProps {
@@ -106,11 +111,7 @@ const FilePreviewCard: React.FC<FilePreviewCardProps> = ({ file, onRemove }) => 
 
 // 2. Pasted Content Card
 interface PastedContentCardProps {
-    content: {
-        id: string;
-        content: string;
-        timestamp: Date;
-    };
+    content: PastedSnippet;
     onRemove: (id: string) => void;
 }
 
@@ -139,129 +140,26 @@ const PastedContentCard: React.FC<PastedContentCardProps> = ({ content, onRemove
     );
 };
 
-// 3. Model Selector
-interface Model {
-    id: string;
-    name: string;
-    description: string;
-    badge?: string;
-}
-
-interface ModelSelectorProps {
-    models: Model[];
-    selectedModel: string;
-    onSelect: (modelId: string) => void;
-}
-
-const ModelSelector: React.FC<ModelSelectorProps> = ({ models, selectedModel, onSelect }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef<HTMLDivElement>(null);
-
-    const currentModel = models.find(m => m.id === selectedModel) || models[0];
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
-    return (
-        <div className="relative" ref={dropdownRef}>
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className={`inline-flex items-center justify-center relative shrink-0 transition font-base duration-300 ease-[cubic-bezier(0.165,0.85,0.45,1)] h-8 rounded-xl px-3 min-w-[4rem] active:scale-[0.98] whitespace-nowrap !text-xs pl-2.5 pr-2 gap-1
-                ${isOpen
-                        ? 'bg-medium-jungle-200 text-india-green-600 dark:bg-medium-jungle-600 dark:text-light-green-300'
-                        : 'text-india-green-400 hover:text-india-green-600 hover:bg-medium-jungle-200 dark:text-light-green-400 dark:hover:text-light-green-300 dark:hover:bg-medium-jungle-600'}`}
-            >
-                <div className="font-ui inline-flex gap-[3px] text-[14px] h-[14px] leading-none items-baseline">
-                    <div className="flex items-center gap-[4px]">
-                        <div className="whitespace-nowrap select-none font-medium">{currentModel.name}</div>
-                    </div>
-                </div>
-                <div className="flex items-center justify-center opacity-75" style={{ width: '20px', height: '20px' }}>
-                    <Icons.SelectArrow className={`shrink-0 opacity-75 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-                </div>
-            </button>
-
-            {isOpen && (
-                <div className="absolute bottom-full right-0 mb-2 w-[260px] bg-white dark:bg-medium-jungle-100 border border-medium-jungle-300 dark:border-medium-jungle-400 rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col p-1.5 animate-fade-in origin-bottom-right">
-                    {models.map(model => (
-                        <button
-                            key={model.id}
-                            onClick={() => {
-                                onSelect(model.id);
-                                setIsOpen(false);
-                            }}
-                            className={`w-full text-left px-3 py-2.5 rounded-xl flex items-start justify-between group transition-colors hover:bg-medium-jungle-200 dark:hover:bg-medium-jungle-400`}
-                        >
-                            <div className="flex flex-col gap-0.5">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[13px] font-semibold text-india-green-600 dark:text-light-green-300">
-                                        {model.name}
-                                    </span>
-                                    {model.badge && (
-                                        <span className={`px-1.5 py-[1px] rounded-full text-[10px] font-medium border ${model.badge === 'Upgrade'
-                                            ? 'border-light-green-300 text-light-green-600 bg-white dark:border-light-green-500/30 dark:text-light-green-400 dark:bg-light-green-500/10'
-                                            : 'border-medium-jungle-300 text-india-green-400'
-                                            }`}>
-                                            {model.badge}
-                                        </span>
-                                    )}
-                                </div>
-                                <span className="text-[11px] text-india-green-400 dark:text-light-green-500">
-                                    {model.description}
-                                </span>
-                            </div>
-                            {selectedModel === model.id && (
-                                <Icons.Check className="w-4 h-4 text-light-green-600 dark:text-light-green-400 mt-1" />
-                            )}
-                        </button>
-                    ))}
-
-                    <div className="h-px bg-medium-jungle-300 dark:bg-medium-jungle-400 my-1 mx-2" />
-
-                    <button className="w-full text-left px-3 py-2.5 rounded-xl flex items-center justify-between group transition-colors hover:bg-medium-jungle-200 dark:hover:bg-medium-jungle-400 text-india-green-600 dark:text-light-green-300">
-                        <span className="text-[13px] font-semibold">More models</span>
-                        <Icons.SelectArrow className="w-4 h-4 -rotate-90 text-india-green-400 dark:text-light-green-500" />
-                    </button>
-                </div>
-            )}
-        </div>
-    );
-};
-
-// 4. Main Chat Input Component
-interface ClaudeChatInputProps {
+// 3. Main Chat Input Component
+interface ChatInputProps {
     onSendMessage: (data: {
         message: string;
         files: AttachedFile[];
-        pastedContent: AttachedFile[];
-        model: string;
+        pastedContent: PastedSnippet[];
         isThinkingEnabled: boolean;
     }) => void;
 }
 
-export const ClaudeChatInput: React.FC<ClaudeChatInputProps> = ({ onSendMessage }) => {
+export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
     const [message, setMessage] = useState("");
     const [files, setFiles] = useState<AttachedFile[]>([]);
-    const [pastedContent, setPastedContent] = useState<AttachedFile[]>([]);
+    const [pastedContent, setPastedContent] = useState<PastedSnippet[]>([]);
     const [isDragging, setIsDragging] = useState(false);
-    const [selectedModel, setSelectedModel] = useState("sonnet-4.5");
     const [isThinkingEnabled, setIsThinkingEnabled] = useState(false);
+    const [isInputFocused, setIsInputFocused] = useState(false);
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const models = [
-        { id: "opus-4.5", name: "Opus 4.5", description: "Most capable for complex work" },
-        { id: "sonnet-4.5", name: "Sonnet 4.5", description: "Best for everyday tasks" },
-        { id: "haiku-4.5", name: "Haiku 4.5", description: "Fastest for quick answers" }
-    ];
 
     // Auto-resize textarea
     useEffect(() => {
@@ -335,7 +233,7 @@ export const ClaudeChatInput: React.FC<ClaudeChatInputProps> = ({ onSendMessage 
         const text = e.clipboardData.getData('text');
         if (text.length > 300) {
             e.preventDefault();
-            const snippet = {
+            const snippet: PastedSnippet = {
                 id: Math.random().toString(36).substr(2, 9),
                 content: text,
                 timestamp: new Date()
@@ -350,7 +248,7 @@ export const ClaudeChatInput: React.FC<ClaudeChatInputProps> = ({ onSendMessage 
 
     const handleSend = () => {
         if (!message.trim() && files.length === 0 && pastedContent.length === 0) return;
-        onSendMessage({ message, files, pastedContent, model: selectedModel, isThinkingEnabled });
+        onSendMessage({ message, files, pastedContent, isThinkingEnabled });
         setMessage("");
         setFiles([]);
         setPastedContent([]);
@@ -365,21 +263,38 @@ export const ClaudeChatInput: React.FC<ClaudeChatInputProps> = ({ onSendMessage 
     };
 
     const hasContent = message.trim() || files.length > 0 || pastedContent.length > 0;
+    const inputActive = isInputFocused;
+    const sendButtonStyle: React.CSSProperties = (hasContent || inputActive) ? {
+        backgroundColor: '#0e0e0e',
+        color: '#ffffff',
+        border: '1px solid #000000',
+        boxShadow: '0 10px 24px rgba(0, 0, 0, 0.45)'
+    } : {
+        backgroundColor: '#f1f1f1',
+        color: '#7a7a7a',
+        border: '1px solid #d7d7d7',
+        opacity: 0.75
+    };
 
     return (
         <div
-            className={`relative w-full max-w-2xl mx-auto transition-all duration-300 font-sans`}
+            className={`relative w-full max-w-5xl mx-auto transition-all duration-300 font-sans`}
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
             onDrop={onDrop}
         >
-            {/* Main Container - matching Machina's green theme */}
+            {/* Main Container - monochrome shell */}
             <div className={`
-                !box-content flex flex-col mx-2 md:mx-0 items-stretch transition-all duration-200 relative z-10 rounded-2xl cursor-text border border-medium-jungle-300 dark:border-transparent
-                shadow-[0_0_15px_rgba(19,70,17,0.08)] hover:shadow-[0_0_20px_rgba(19,70,17,0.12)]
-                focus-within:shadow-[0_0_25px_rgba(19,70,17,0.15)]
-                bg-white dark:bg-medium-jungle-200 font-sans antialiased
-            `}>
+                !box-content flex flex-col mx-2 md:mx-0 items-stretch transition-all duration-200 relative z-10 rounded-2xl cursor-text border
+                shadow-[0_0_18px_rgba(0,0,0,0.25)] hover:shadow-[0_0_22px_rgba(0,0,0,0.3)]
+                focus-within:shadow-[0_0_26px_rgba(0,0,0,0.35)]
+                bg-white font-sans antialiased backdrop-blur
+            `}
+                style={{
+                    backgroundColor: 'rgba(255,255,255,0.94)',
+                    borderColor: 'rgba(255,255,255,0.35)'
+                }}
+            >
 
                 <div className="flex flex-col px-3 pt-3 pb-2 gap-2">
 
@@ -387,11 +302,11 @@ export const ClaudeChatInput: React.FC<ClaudeChatInputProps> = ({ onSendMessage 
                     {(files.length > 0 || pastedContent.length > 0) && (
                         <div className="flex gap-3 overflow-x-auto custom-scrollbar pb-2 px-1">
                             {pastedContent.map(content => (
-                                <PastedContentCard
-                                    key={content.id}
-                                    content={content}
-                                    onRemove={id => setPastedContent(prev => prev.filter(c => c.id !== id))}
-                                />
+                            <PastedContentCard
+                                key={content.id}
+                                content={content}
+                                onRemove={id => setPastedContent(prev => prev.filter(c => c.id !== id))}
+                            />
                             ))}
                             {files.map(file => (
                                 <FilePreviewCard
@@ -405,6 +320,11 @@ export const ClaudeChatInput: React.FC<ClaudeChatInputProps> = ({ onSendMessage 
 
                     {/* 2. Input Area */}
                     <div className="relative mb-1">
+                        <style>{`
+                            .chat-textarea::placeholder {
+                                color: #a1a1aa !important;
+                            }
+                        `}</style>
                         <div className="max-h-96 w-full overflow-y-auto custom-scrollbar font-sans break-words transition-opacity duration-200 min-h-[2.5rem] pl-1">
                             <textarea
                                 ref={textareaRef}
@@ -412,11 +332,18 @@ export const ClaudeChatInput: React.FC<ClaudeChatInputProps> = ({ onSendMessage 
                                 onChange={(e) => setMessage(e.target.value)}
                                 onPaste={handlePaste}
                                 onKeyDown={handleKeyDown}
+                                onFocus={() => setIsInputFocused(true)}
+                                onBlur={() => setIsInputFocused(false)}
                                 placeholder="How can I help you today?"
-                                className="w-full bg-transparent border-0 outline-none text-india-green-600 dark:text-light-green-200 text-[16px] placeholder:text-india-green-400 dark:placeholder:text-light-green-400 resize-none overflow-hidden py-0 leading-relaxed block font-normal antialiased"
+                                className="w-full bg-transparent border-0 outline-none resize-none overflow-hidden py-0 leading-relaxed block font-normal antialiased text-[16px] chat-textarea"
+                                style={{
+                                    color: '#000000',
+                                    minHeight: '1.5em',
+                                    fontSize: '16px',
+                                    backgroundColor: '#f7f7f7'
+                                }}
                                 rows={1}
                                 autoFocus
-                                style={{ minHeight: '1.5em' }}
                             />
                         </div>
                     </div>
@@ -461,26 +388,14 @@ export const ClaudeChatInput: React.FC<ClaudeChatInputProps> = ({ onSendMessage 
 
                         {/* Right Tools */}
                         <div className="flex flex-row items-center min-w-0 gap-1">
-                            {/* Model Selector */}
-                            <div className="shrink-0 p-1 -m-1">
-                                <ModelSelector
-                                    models={models}
-                                    selectedModel={selectedModel}
-                                    onSelect={setSelectedModel}
-                                />
-                            </div>
 
                             {/* Send Button */}
                             <div>
                                 <button
                                     onClick={handleSend}
                                     disabled={!hasContent}
-                                    className={`
-                                        inline-flex items-center justify-center relative shrink-0 transition-colors h-8 w-8 rounded-md active:scale-95 !rounded-xl !h-8 !w-8
-                                        ${hasContent
-                                            ? 'bg-light-green-600 text-white hover:bg-light-green-700 shadow-md dark:bg-light-green-500 dark:hover:bg-light-green-600'
-                                            : 'bg-light-green-500/30 text-white/60 cursor-default dark:bg-light-green-500/20 dark:text-light-green-500/60'}
-                                    `}
+                                    className="inline-flex items-center justify-center relative shrink-0 transition-all h-8 w-8 rounded-xl active:scale-95 border disabled:cursor-not-allowed hover:-translate-y-[1px]"
+                                    style={sendButtonStyle}
                                     type="button"
                                     aria-label="Send message"
                                 >
@@ -521,4 +436,4 @@ export const ClaudeChatInput: React.FC<ClaudeChatInputProps> = ({ onSendMessage 
     );
 };
 
-export default ClaudeChatInput;
+export default ChatInput;

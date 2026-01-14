@@ -502,7 +502,7 @@ const GoalProfileDisplay: React.FC<GoalProfileDisplayProps> = ({
         >
           <div className="text-6xl mb-4">🎯</div>
           <h3 className="text-lg font-semibold text-medium-jungle-600 mb-2">No goals yet</h3>
-          <p className="text-medium-jungle-500">Start a conversation with Machina to create your first goal!</p>
+          <p className="text-medium-jungle-500">Start a conversation with LegianOS to create your first goal!</p>
         </motion.div>
       ) : (
         <div className="space-y-4">
@@ -525,7 +525,7 @@ const GoalProfileDisplay: React.FC<GoalProfileDisplayProps> = ({
         layout
         className="text-center py-4 text-xs text-medium-jungle-400"
       >
-        Powered by Machina Goal Management System 🌟
+        Powered by LegianOS Goal Management System 🌟
       </motion.div>
     </div>
   )

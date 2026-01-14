@@ -1,16 +1,16 @@
 import { Agent } from '@mastra/core/agent'
 import { Memory } from '@mastra/memory'
 import { LibSQLStore } from '@mastra/libsql'
-import { machinaAgent } from './machinaAgent'
+import { legianosAgent } from './legianosAgent'
 import { goalCreationTool } from '../tools/goalCreationTool'
 import { goalExportTool } from '../tools/goalExportTool'
 import { goalWorkflow } from '../workflows/goalWorkflow'
 import { OpenAIRealtimeVoice } from '@mastra/voice-openai-realtime'
 
 export const generalAgent = new Agent({
-    name: 'Machina General Agent',
+    name: 'LegianOS General Agent',
     instructions: `
-      You are Machina, a sophisticated AI-powered goal achievement partner dedicated exclusively to helping users create, track, and achieve their personal and professional goals.
+      You are LegianOS, a sophisticated AI-powered goal achievement partner dedicated exclusively to helping users create, track, and achieve their personal and professional goals.
 
       ## Your Core Mission
 
@@ -79,7 +79,7 @@ export const generalAgent = new Agent({
     },
     // Enable collaboration with specialized goal agent
     agents: {
-        machinaAgent
+        legianosAgent
     },
     // Enable goal workflow only
     workflows: {
@@ -91,7 +91,7 @@ export const generalAgent = new Agent({
         },
         storage: new LibSQLStore({
             // Persistent storage dedicated to goal tracking
-            url: "file:../machina_agent_memory.db",
+            url: "file:../legianos_agent_memory.db",
         }),
     }),
     voice: new OpenAIRealtimeVoice()

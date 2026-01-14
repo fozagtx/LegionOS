@@ -3,12 +3,14 @@
 import { mastra } from "../mastra"
 import { CoreMessage } from "@mastra/core"
 import { Goal, GoalProfile, ExportFormat, goalSchema } from "./goalTypes"
+import { ImageAttachment } from "./attachments"
 
-// Main function to interact with Machina goal agent
+// Main function to interact with LegianOS goal agent
 export async function runGoalAgent(
   prompt: string,
   threadId: string,
-  userId: string
+  userId: string,
+  attachments: ImageAttachment[] = []
 ): Promise<{
   text: string
   goalProfile?: Goal
@@ -18,53 +20,77 @@ export async function runGoalAgent(
   needsMoreInfo?: boolean
 }> {
   try {
-    const agent = mastra.getAgent("machinaAgent")
+    const agent = mastra.getAgent("legianosAgent")
 
     // Use the goal workflow for structured goal creation
     const workflow = mastra.getWorkflow("goal-workflow")
+    const attachmentNote = attachments.length > 0
+      ? `\n\n[Attached images: ${attachments.map(att => att.name || att.mimeType).join(', ')}]`
+      : ''
+    const promptWithAttachments = `${prompt}${attachmentNote}`
 
+    // Try workflow first; fall back to direct generation on failure
     if (workflow) {
-      // Run the workflow for more structured processing
-      const workflowResult = await workflow.execute({
-        userMessage: prompt,
-        userId,
-        preferences: {
-          defaultExportFormat: ExportFormat.MARKDOWN,
-          autoGenerate: true,
-          includeTemplates: true
+      try {
+        const workflowResult = await workflow.execute({
+          userMessage: promptWithAttachments,
+          userId,
+          preferences: {
+            defaultExportFormat: ExportFormat.MARKDOWN,
+            autoGenerate: true,
+            includeTemplates: true
+          }
+        })
+
+        return {
+          text: workflowResult.conversationalResponse,
+          goalProfile: workflowResult.goalProfile,
+          exportContent: workflowResult.exportedContent,
+          nextSteps: workflowResult.nextSteps,
+          confidence: workflowResult.confidence,
+          needsMoreInfo: workflowResult.needsMoreInfo
         }
-      })
-
-      return {
-        text: workflowResult.conversationalResponse,
-        goalProfile: workflowResult.goalProfile,
-        exportContent: workflowResult.exportedContent,
-        nextSteps: workflowResult.nextSteps,
-        confidence: workflowResult.confidence,
-        needsMoreInfo: workflowResult.needsMoreInfo
+      } catch (workflowError) {
+        console.error("Workflow execution failed, falling back to agent.generate", workflowError)
       }
-    } else {
-      // Fallback to direct agent interaction
-      const result = await agent.generate(prompt, {
-        memory: {
-          thread: threadId,
-          resource: userId
-        },
-        // Enable structured output for goal creation
-        structuredOutput: {
-          schema: goalSchema.optional()
-        }
-      })
+    }
 
-      if (result.error) {
-        throw new Error(result.error.toString())
-      }
+    // Fallback to direct agent interaction
+    const content = attachments.length > 0
+      ? [
+          { type: "text", text: prompt },
+          ...attachments.map((img) => ({
+            type: "image",
+            mimeType: img.mimeType,
+            image: img.data
+          }))
+        ]
+      : undefined
 
-      return {
-        text: result.text,
-        confidence: 0.5,
-        needsMoreInfo: true
+    const result = await agent.generate(content ? [
+      {
+        role: "user",
+        content
       }
+    ] : prompt, {
+      memory: {
+        thread: threadId,
+        resource: userId
+      },
+      // Enable structured output for goal creation
+      structuredOutput: {
+        schema: goalSchema.optional()
+      }
+    })
+
+    if (result.error) {
+      throw new Error(result.error.toString())
+    }
+
+    return {
+      text: result.text,
+      confidence: 0.5,
+      needsMoreInfo: true
     }
   } catch (error) {
     console.error("Goal agent error:", error)
@@ -97,7 +123,7 @@ export async function exportGoals(
   size: number
 }> {
   try {
-    const agent = mastra.getAgent("machinaAgent")
+    const agent = mastra.getAgent("legianosAgent")
 
     // Use the export tool through agent
     const result = await agent.generate(`Export ${goals.length} goals in ${format} format`, {
@@ -134,25 +160,25 @@ export async function exportGoals(
           version: '1.0'
         }
         content = JSON.stringify(goalProfile, null, 2)
-        filename = `machina-goals-${timestamp}.json`
+        filename = `legianos-goals-${timestamp}.json`
         mimeType = 'application/json'
         break
 
       case ExportFormat.MARKDOWN:
         content = generateMarkdownExport(goals, options)
-        filename = `machina-goals-${timestamp}.md`
+        filename = `legianos-goals-${timestamp}.md`
         mimeType = 'text/markdown'
         break
 
       case ExportFormat.CSV:
         content = generateCSVExport(goals)
-        filename = `machina-goals-${timestamp}.csv`
+        filename = `legianos-goals-${timestamp}.csv`
         mimeType = 'text/csv'
         break
 
       case ExportFormat.PDF:
         content = generateHTMLExport(goals, options)
-        filename = `machina-goals-${timestamp}.html`
+        filename = `legianos-goals-${timestamp}.html`
         mimeType = 'text/html'
         break
 
@@ -178,7 +204,7 @@ export async function getGoalConversationHistory(
   userId: string
 ): Promise<CoreMessage[]> {
   try {
-    const agent = mastra.getAgent("machinaAgent")
+    const agent = mastra.getAgent("legianosAgent")
     const memories = await agent.fetchMemory({
       resourceId: userId,
       threadId: threadId
@@ -206,7 +232,7 @@ export async function updateGoalProgress(
   }
 ): Promise<{ success: boolean; message: string }> {
   try {
-    const agent = mastra.getAgent("machinaAgent")
+    const agent = mastra.getAgent("legianosAgent")
 
     // Generate a progress update prompt
     const prompt = `Update progress for goal ${goalId}:
@@ -250,7 +276,7 @@ export async function getGoalRecommendations(
   riskAssessment: string[]
 }> {
   try {
-    const agent = mastra.getAgent("machinaAgent")
+    const agent = mastra.getAgent("legianosAgent")
 
     const prompt = `Analyze the following goals and provide insights, recommendations, and risk assessment:
 
@@ -311,7 +337,7 @@ function generateMarkdownExport(goals: Goal[], options: any): string {
   const title = customization?.title || `${userContext?.name ? userContext.name + "'s " : ""}Goal Profile`
 
   let content = `# ${title}\n\n`
-  content += `*Generated by Machina Goal Management System*\n\n`
+  content += `*Generated by LegianOS Goal Management System*\n\n`
   content += `**Date:** ${new Date().toLocaleDateString()}\n`
   content += `**Goals Count:** ${goals.length}\n\n`
   content += `---\n\n`
@@ -393,7 +419,7 @@ function generateHTMLExport(goals: Goal[], options: any): string {
 <body>
     <div class="header">
         <h1>${title}</h1>
-        <p>Generated by Machina Goal Management System on ${new Date().toLocaleDateString()}</p>
+        <p>Generated by LegianOS Goal Management System on ${new Date().toLocaleDateString()}</p>
     </div>
 
     ${goals.map(goal => `
@@ -415,7 +441,7 @@ function generateHTMLExport(goals: Goal[], options: any): string {
     `).join('')}
 
     <div style="text-align: center; margin-top: 40px; color: #3e8914;">
-        <p>Powered by Machina Goal Management System 🌟</p>
+        <p>Powered by LegianOS Goal Management System 🌟</p>
     </div>
 </body>
 </html>

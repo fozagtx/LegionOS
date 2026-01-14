@@ -3,8 +3,8 @@ import { Mastra } from '@mastra/core/mastra'
 import { PinoLogger } from '@mastra/loggers'
 import { LibSQLStore } from '@mastra/libsql'
 import { goalWorkflow } from './workflows/goalWorkflow'
-import { generalAgent } from './agents/general-agent'
-import { machinaAgent } from './agents/machinaAgent'
+import { generalAgent } from './agents/generalAgent'
+import { legianosAgent } from './agents/legianosAgent'
 
 
 export const mastra = new Mastra({
@@ -13,14 +13,14 @@ export const mastra = new Mastra({
     },
     agents: {
         "generalAgent": generalAgent,
-        "machinaAgent": machinaAgent
+        "legianosAgent": legianosAgent
     },
     storage: new LibSQLStore({
         // stores observability, scores, and goal data - persistent storage for goal management
         url: "file:../mastra_storage.db",
     }),
     logger: new PinoLogger({
-        name: 'Machina',
+        name: 'LegianOS',
         level: 'info',
     }),
     telemetry: {

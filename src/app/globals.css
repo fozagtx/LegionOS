@@ -4,69 +4,15 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-    /* Machina Green Theme - Updated */
-    --background: #fbfdf8;
-    --foreground: #2a3918;
-
-    /* Frosted Mint - Primary backgrounds */
-    --frosted-mint: #e9f5db;
-    --frosted-mint-100: #304914;
-    --frosted-mint-200: #609228;
-    --frosted-mint-300: #90cd49;
-    --frosted-mint-400: #bce192;
-    --frosted-mint-500: #e9f5db;
-    --frosted-mint-600: #edf7e2;
-    --frosted-mint-700: #f2f9e9;
-    --frosted-mint-800: #f6fbf1;
-    --frosted-mint-900: #fbfdf8;
-
-    /* Tea Green - Content areas */
-    --tea-green: #cfe1b9;
-    --tea-green-100: #2a3918;
-    --tea-green-200: #557231;
-    --tea-green-300: #7fab49;
-    --tea-green-400: #a7c87e;
-    --tea-green-500: #cfe1b9;
-    --tea-green-600: #d8e7c6;
-    --tea-green-700: #e2edd4;
-    --tea-green-800: #ebf3e2;
-    --tea-green-900: #f5f9f1;
-
-    /* Muted Olive - Interactive elements */
-    --muted-olive: #b5c99a;
-    --muted-olive-100: #252e19;
-    --muted-olive-200: #4a5d32;
-    --muted-olive-300: #6f8b4b;
-    --muted-olive-400: #93b06d;
-    --muted-olive-500: #b5c99a;
-    --muted-olive-600: #c4d4af;
-    --muted-olive-700: #d3dfc3;
-    --muted-olive-800: #e2ead7;
-    --muted-olive-900: #f0f4eb;
-
-    /* Palm Leaf - Secondary actions */
-    --palm-leaf: #87986a;
-    --palm-leaf-100: #1b1f15;
-    --palm-leaf-200: #373d2b;
-    --palm-leaf-300: #525c40;
-    --palm-leaf-400: #6d7b55;
-    --palm-leaf-500: #87986a;
-    --palm-leaf-600: #a0ad89;
-    --palm-leaf-700: #b8c2a7;
-    --palm-leaf-800: #cfd6c4;
-    --palm-leaf-900: #e7ebe2;
-
-    /* Dusty Olive - Accent colors */
-    --dusty-olive: #718355;
-    --dusty-olive-100: #161a11;
-    --dusty-olive-200: #2d3422;
-    --dusty-olive-300: #434e33;
-    --dusty-olive-400: #5a6844;
-    --dusty-olive-500: #718355;
-    --dusty-olive-600: #8ea270;
-    --dusty-olive-700: #abb994;
-    --dusty-olive-800: #c7d0b7;
-    --dusty-olive-900: #e3e8db;
+    /* Black and White Theme */
+    --background: #141414;
+    --foreground: #ffffff;
+    --button-bg: #ffffff;
+    --button-text: #000000;
+    --border: #333333;
+    --input-bg: #1a1a1a;
+    --card-bg: #1e1e1e;
+    --hover-bg: #2a2a2a;
 }
 
 @theme inline {
@@ -75,116 +21,90 @@
     --font-sans: var(--font-geist-sans);
     --font-mono: var(--font-geist-mono);
 
-    /* Machina Color Palette */
-    --color-black-forest: var(--black-forest);
-    --color-black-forest-100: var(--black-forest-100);
-    --color-black-forest-200: var(--black-forest-200);
-    --color-black-forest-300: var(--black-forest-300);
-    --color-black-forest-400: var(--black-forest-400);
-    --color-black-forest-500: var(--black-forest-500);
-    --color-black-forest-600: var(--black-forest-600);
-    --color-black-forest-700: var(--black-forest-700);
-    --color-black-forest-800: var(--black-forest-800);
-    --color-black-forest-900: var(--black-forest-900);
+    /* Black and White Color System */
+    --color-gray-50: #fafafa;
+    --color-gray-100: #f4f4f5;
+    --color-gray-200: #e4e4e7;
+    --color-gray-300: #d4d4d8;
+    --color-gray-400: #a1a1aa;
+    --color-gray-500: #71717a;
+    --color-gray-600: #52525b;
+    --color-gray-700: #3f3f46;
+    --color-gray-800: #27272a;
+    --color-gray-900: #18181b;
+    --color-gray-950: #09090b;
 
-    --color-india-green: var(--india-green);
-    --color-india-green-100: var(--india-green-100);
-    --color-india-green-200: var(--india-green-200);
-    --color-india-green-300: var(--india-green-300);
-    --color-india-green-400: var(--india-green-400);
-    --color-india-green-500: var(--india-green-500);
-    --color-india-green-600: var(--india-green-600);
-    --color-india-green-700: var(--india-green-700);
-    --color-india-green-800: var(--india-green-800);
-    --color-india-green-900: var(--india-green-900);
+    /* Custom theme colors */
+    --color-bg-primary: #141414;
+    --color-bg-secondary: #1e1e1e;
+    --color-bg-tertiary: #2a2a2a;
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #a1a1aa;
+    --color-border: #333333;
+    --color-button: #ffffff;
+    --color-button-text: #000000;
+    --color-button-hover: #f4f4f5;
 
-    --color-medium-jungle: var(--medium-jungle);
-    --color-medium-jungle-100: var(--medium-jungle-100);
-    --color-medium-jungle-200: var(--medium-jungle-200);
-    --color-medium-jungle-300: var(--medium-jungle-300);
-    --color-medium-jungle-400: var(--medium-jungle-400);
-    --color-medium-jungle-500: var(--medium-jungle-500);
-    --color-medium-jungle-600: var(--medium-jungle-600);
-    --color-medium-jungle-700: var(--medium-jungle-700);
-    --color-medium-jungle-800: var(--medium-jungle-800);
-    --color-medium-jungle-900: var(--medium-jungle-900);
-
-    --color-light-green: var(--light-green);
-    --color-light-green-100: var(--light-green-100);
-    --color-light-green-200: var(--light-green-200);
-    --color-light-green-300: var(--light-green-300);
-    --color-light-green-400: var(--light-green-400);
-    --color-light-green-500: var(--light-green-500);
-    --color-light-green-600: var(--light-green-600);
-    --color-light-green-700: var(--light-green-700);
-    --color-light-green-800: var(--light-green-800);
-    --color-light-green-900: var(--light-green-900);
-
-    --color-frosted-mint: var(--frosted-mint);
-    --color-frosted-mint-100: var(--frosted-mint-100);
-    --color-frosted-mint-200: var(--frosted-mint-200);
-    --color-frosted-mint-300: var(--frosted-mint-300);
-    --color-frosted-mint-400: var(--frosted-mint-400);
-    --color-frosted-mint-500: var(--frosted-mint-500);
-    --color-frosted-mint-600: var(--frosted-mint-600);
-    --color-frosted-mint-700: var(--frosted-mint-700);
-    --color-frosted-mint-800: var(--frosted-mint-800);
-    --color-frosted-mint-900: var(--frosted-mint-900);
-
-    /* Claude-style colors adapted for Machina green theme */
-    --color-bg-0: #fafef5;
-    --color-bg-000: #fafef5;
+    /* Claude-style adapted colors */
+    --color-bg-0: #141414;
     --color-bg-100: #ffffff;
-    --color-bg-200: #f0f5e8;
-    --color-bg-300: #e1ead6;
-    --color-text-100: #134611;
-    --color-text-200: #1f5d1a;
-    --color-text-300: #3e8914;
-    --color-text-400: #6b8f5f;
-    --color-text-500: #96a58f;
-    --color-accent: #3da35d;
-    --color-accent-hover: #358750;
+    --color-bg-200: #1e1e1e;
+    --color-bg-300: #2a2a2a;
+    --color-text-100: #ffffff;
+    --color-text-200: #e4e4e7;
+    --color-text-300: #a1a1aa;
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #a1a1aa;
+    --color-accent: #ffffff;
+    --color-hover: #2a2a2a;
+    --color-border: #333333;
+    --color-border-2: #27272a;
+    --color-dark: #141414;
 
-    /* Dark theme overrides */
-    --color-bg-0-dark: #0c1c04;
-    --color-bg-000-dark: #0c1c04;
-    --color-bg-100-dark: #134611;
-    --color-bg-200-dark: #184225;
-    --color-bg-300-dark: #246238;
-    --color-text-100-dark: #e8fccf;
-    --color-text-200-dark: #d5f6c1;
-    --color-text-300-dark: #abed84;
-    --color-text-400-dark: #82d19b;
-    --color-text-500-dark: #58c179;
-    --color-accent-dark: #96e072;
-    --color-accent-hover-dark: #abe68d;
+    /* Legacy green palette mapped to the monochrome theme */
+    --color-black-forest-500: #141414;
+    --color-black-forest-600: #0f0f0f;
+
+    --color-medium-jungle-100: #1a1a1a;
+    --color-medium-jungle-200: #1e1e1e;
+    --color-medium-jungle-300: #242424;
+    --color-medium-jungle-400: #2a2a2a;
+    --color-medium-jungle-500: #303030;
+    --color-medium-jungle-600: #383838;
+    --color-medium-jungle-700: #464646;
+
+    --color-light-green-50: #f7f7f7;
+    --color-light-green-100: #f2f2f2;
+    --color-light-green-200: #e6e6e6;
+    --color-light-green-300: #d8d8d8;
+    --color-light-green-400: #c0c0c0;
+    --color-light-green-500: #a8a8a8;
+    --color-light-green-600: #8f8f8f;
+    --color-light-green-700: #6e6e6e;
+
+    --color-india-green-100: #ededed;
+    --color-india-green-300: #d7d7d7;
+    --color-india-green-400: #bfbfbf;
+    --color-india-green-600: #9a9a9a;
+    --color-india-green-800: #6e6e6e;
+
+    --color-frosted-mint-200: #f4f4f5;
+    --color-frosted-mint-300: #e4e4e7;
+    --color-frosted-mint-400: #d4d4d8;
+    --color-frosted-mint-500: #c4c4c8;
+    --color-frosted-mint-600: #b2b2b8;
+    --color-frosted-mint-700: #9a9aa1;
+    --color-frosted-mint-900: #121212;
 
     /* Shadow and animation definitions */
-    --shadow-input: 0 1px 2px -1px rgba(19, 70, 17, 0.08), 0 2px 8px -2px rgba(19, 70, 17, 0.04);
-    --shadow-input-hover: 0 1px 2px -1px rgba(19, 70, 17, 0.08), 0 4px 12px -2px rgba(19, 70, 17, 0.08);
-    --shadow-input-focus: 0 0 0 2px rgba(61, 163, 93, 0.1), 0 4px 12px -2px rgba(19, 70, 17, 0.08);
+    --shadow-input: 0 1px 2px -1px rgba(0, 0, 0, 0.1), 0 2px 8px -2px rgba(0, 0, 0, 0.06);
+    --shadow-input-hover: 0 1px 2px -1px rgba(0, 0, 0, 0.1), 0 4px 12px -2px rgba(0, 0, 0, 0.1);
+    --shadow-input-focus: 0 0 0 2px rgba(255, 255, 255, 0.1), 0 4px 12px -2px rgba(0, 0, 0, 0.1);
 }
 
 .dark {
-    --color-bg-0: var(--color-bg-0-dark);
-    --color-bg-000: var(--color-bg-000-dark);
-    --color-bg-100: var(--color-bg-100-dark);
-    --color-bg-200: var(--color-bg-200-dark);
-    --color-bg-300: var(--color-bg-300-dark);
-    --color-text-100: var(--color-text-100-dark);
-    --color-text-200: var(--color-text-200-dark);
-    --color-text-300: var(--color-text-300-dark);
-    --color-text-400: var(--color-text-400-dark);
-    --color-text-500: var(--color-text-500-dark);
-    --color-accent: var(--color-accent-dark);
-    --color-accent-hover: var(--color-accent-hover-dark);
-}
-
-@media (prefers-color-scheme: light) {
-    :root {
-        --background: #fafef5;
-        --foreground: #134611;
-    }
+    --color-background: #141414;
+    --color-foreground: #ffffff;
 }
 
 /* Claude-style animations */
@@ -216,17 +136,17 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--color-bg-300);
+    background: #333333;
     border-radius: 3px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--color-text-400);
+    background: #52525b;
 }
 
 body {
     background: var(--background);
     color: var(--foreground);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: 'Arimo', 'Open Sans', 'TikTok Sans', 'Geist', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
