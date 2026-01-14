@@ -25,90 +25,45 @@ export async function runGoalAgent(
   }
 
   try {
-    const agent = mastra.getAgent("legianosAgent")
+    const agent = mastra.getAgent("generalAgent")
 
     if (!agent) {
       throw new Error("LegianOS agent not found. Please check Mastra configuration.")
     }
 
-    // Use the goal workflow for structured goal creation
-    const workflow = mastra.getWorkflow("goal-workflow")
-    const attachmentNote = attachments.length > 0
-      ? `\n\n[Attached images: ${attachments.map(att => att.name || att.mimeType).join(', ')}]`
-      : ''
-    const promptWithAttachments = `${prompt}${attachmentNote}`
+    // Build message content with attachments if present
+    const content = attachments.length > 0
+      ? [
+          { type: "text" as const, text: prompt },
+          ...attachments.map((img) => ({
+            type: "image" as const,
+            mimeType: img.mimeType,
+            image: img.data
+          }))
+        ]
+      : undefined
 
-    // Try workflow first; fall back to direct generation on failure
-    let workflowError: Error | null = null
-    if (workflow) {
-      try {
-        const workflowResult = await workflow.execute({
-          userMessage: promptWithAttachments,
-          userId,
-          preferences: {
-            defaultExportFormat: ExportFormat.MARKDOWN,
-            autoGenerate: true,
-            includeTemplates: true
-          }
-        })
-
-        return {
-          text: workflowResult.conversationalResponse,
-          goalProfile: workflowResult.goalProfile,
-          exportContent: workflowResult.exportedContent,
-          nextSteps: workflowResult.nextSteps,
-          confidence: workflowResult.confidence,
-          needsMoreInfo: workflowResult.needsMoreInfo
-        }
-      } catch (err) {
-        workflowError = err instanceof Error ? err : new Error(String(err))
-        console.error("Workflow execution failed, falling back to agent.generate:", workflowError.message)
+    // Use agent directly for all interactions
+    const result = await agent.generate(content ? [
+      {
+        role: "user" as const,
+        content
       }
+    ] : prompt, {
+      memory: {
+        thread: threadId,
+        resource: userId
+      }
+    })
+
+    if (result.error) {
+      throw new Error(result.error.toString())
     }
 
-    // Fallback to direct agent interaction
-    try {
-      const content = attachments.length > 0
-        ? [
-            { type: "text", text: prompt },
-            ...attachments.map((img) => ({
-              type: "image",
-              mimeType: img.mimeType,
-              image: img.data
-            }))
-          ]
-        : undefined
-
-      const result = await agent.generate(content ? [
-        {
-          role: "user",
-          content
-        }
-      ] : prompt, {
-        memory: {
-          thread: threadId,
-          resource: userId
-        }
-      })
-
-      if (result.error) {
-        throw new Error(result.error.toString())
-      }
-
-      return {
-        text: result.text,
-        confidence: 0.5,
-        needsMoreInfo: true
-      }
-    } catch (agentError) {
-      const agentErrorMsg = agentError instanceof Error ? agentError.message : String(agentError)
-      console.error("Agent generate failed:", agentErrorMsg)
-
-      // If both workflow and agent failed, combine the error messages
-      if (workflowError) {
-        throw new Error(`Workflow failed: ${workflowError.message}. Agent fallback also failed: ${agentErrorMsg}`)
-      }
-      throw new Error(agentErrorMsg)
+    return {
+      text: result.text,
+      confidence: 0.8,
+      needsMoreInfo: false
     }
   } catch (error) {
     console.error("Goal agent error:", error)
