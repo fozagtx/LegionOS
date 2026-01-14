@@ -19,8 +19,17 @@ export async function runGoalAgent(
   confidence?: number
   needsMoreInfo?: boolean
 }> {
+  // Validate API key is set
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error("OPENAI_API_KEY environment variable is not set. Please configure your API key.")
+  }
+
   try {
     const agent = mastra.getAgent("legianosAgent")
+
+    if (!agent) {
+      throw new Error("LegianOS agent not found. Please check Mastra configuration.")
+    }
 
     // Use the goal workflow for structured goal creation
     const workflow = mastra.getWorkflow("goal-workflow")

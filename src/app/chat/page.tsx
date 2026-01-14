@@ -167,11 +167,13 @@ export default function ChatPage() {
         })
       })
 
-      if (!response.ok) {
-        throw new Error("Agent response failed")
-      }
-
       const data = await response.json()
+
+      if (!response.ok) {
+        const errorDetail = data.details || data.error || "Unknown error"
+        const hint = data.hint || ""
+        throw new Error(`${errorDetail}${hint ? ` (${hint})` : ""}`)
+      }
       const assistantMessage: ChatMessage = {
         id: `assistant-${Date.now()}`,
         role: "assistant",
@@ -202,19 +204,20 @@ export default function ChatPage() {
       )
     } catch (error) {
       setAssistantDraft("")
+      const errorMessage = error instanceof Error ? error.message : "Unknown error"
       setMessages(prev => [
         ...prev,
         {
           id: `assistant-error-${Date.now()}`,
           role: "assistant",
-          content: "I couldn't process that request. Please try again.",
+          content: `I couldn't process that request. ${errorMessage.includes("API key") ? "Please check your API key configuration." : "Please try again."}`,
           format: "markdown"
         }
       ])
       setToolEvents(prev =>
         prev.map(tool =>
           tool.id === activeToolId
-            ? { ...tool, state: "output-error", errorText: "Failed to reach LegianOS agent" }
+            ? { ...tool, state: "output-error", errorText: errorMessage || "Failed to reach LegianOS agent" }
             : tool
         )
       )

@@ -49,6 +49,13 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error("Chat API error:", error)
-    return NextResponse.json({ error: "Failed to process goal request" }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+    return NextResponse.json({
+      error: "Failed to process goal request",
+      details: errorMessage,
+      hint: errorMessage.includes("API key") || errorMessage.includes("401")
+        ? "Please ensure OPENAI_API_KEY is set in your environment variables"
+        : undefined
+    }, { status: 500 })
   }
 }
