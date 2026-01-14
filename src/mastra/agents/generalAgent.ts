@@ -5,7 +5,8 @@ import { legianosAgent } from './legianosAgent'
 import { goalCreationTool } from '../tools/goalCreationTool'
 import { goalExportTool } from '../tools/goalExportTool'
 import { goalWorkflow } from '../workflows/goalWorkflow'
-import { OpenAIRealtimeVoice } from '@mastra/voice-openai-realtime'
+// Voice functionality temporarily disabled for deployment compatibility
+// import { OpenAIRealtimeVoice } from '@mastra/voice-openai-realtime'
 
 export const generalAgent = new Agent({
     name: 'LegianOS General Agent',
@@ -94,5 +95,6 @@ export const generalAgent = new Agent({
             url: "file:../legianos_agent_memory.db",
         }),
     }),
-    voice: new OpenAIRealtimeVoice()
+    // Voice functionality temporarily disabled for deployment compatibility
+    // voice: new OpenAIRealtimeVoice()
 })
