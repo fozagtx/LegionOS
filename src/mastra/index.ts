@@ -3,7 +3,6 @@ import { PinoLogger } from '@mastra/loggers'
 import { LibSQLStore } from '@mastra/libsql'
 import { goalWorkflow } from './workflows/goalWorkflow'
 import { generalAgent } from './agents/generalAgent'
-import { legianosAgent } from './agents/legianosAgent'
 
 // Validate required environment variables
 if (!process.env.OPENAI_API_KEY) {
@@ -15,8 +14,7 @@ export const mastra = new Mastra({
         "goal-workflow": goalWorkflow
     },
     agents: {
-        "generalAgent": generalAgent,
-        "legianosAgent": legianosAgent
+        "generalAgent": generalAgent
     },
     storage: new LibSQLStore({
         // stores observability, scores, and goal data - persistent storage for goal management
