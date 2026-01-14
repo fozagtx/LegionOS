@@ -10,6 +10,10 @@ if (!process.env.OPENAI_API_KEY) {
     console.warn('Warning: OPENAI_API_KEY is not set. LegianOS agent will not be able to process requests.')
 }
 
+// Use in-memory storage for serverless environments (Vercel)
+// For persistent storage, set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN
+const storageUrl = process.env.TURSO_DATABASE_URL || ':memory:'
+
 export const mastra = new Mastra({
     workflows: {
         "goal-workflow": goalWorkflow
@@ -19,19 +23,11 @@ export const mastra = new Mastra({
         "legianosAgent": legianosAgent
     },
     storage: new LibSQLStore({
-        // stores observability, scores, and goal data - persistent storage for goal management
-        url: "file:../mastra_storage.db",
+        url: storageUrl,
+        authToken: process.env.TURSO_AUTH_TOKEN,
     }),
     logger: new PinoLogger({
         name: 'LegianOS',
         level: 'info',
     }),
-    telemetry: {
-        // Telemetry is deprecated and will be removed in the Nov 4th release
-        enabled: false,
-    },
-    observability: {
-        // Enables DefaultExporter and CloudExporter for AI tracing
-        default: { enabled: false },
-    },
 })

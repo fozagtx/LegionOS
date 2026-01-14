@@ -2,6 +2,9 @@ import { Agent } from '@mastra/core/agent'
 import { Memory } from '@mastra/memory'
 import { LibSQLStore } from '@mastra/libsql'
 
+// Use in-memory storage for serverless environments (Vercel)
+const memoryStorageUrl = process.env.TURSO_DATABASE_URL || ':memory:'
+
 export const legianosAgent = new Agent({
   name: 'LegianOS Goal Management Agent',
   description: 'Intelligent goal setting, planning, and achievement coaching agent specialized in helping users create, track, and achieve their personal and professional goals.',
@@ -211,8 +214,8 @@ export const legianosAgent = new Agent({
       lastMessages: 20 // Increased for longer goal discovery conversations
     },
     storage: new LibSQLStore({
-      // Persistent storage for goal tracking across sessions
-      url: 'file:../legianos_goals.db'
+      url: memoryStorageUrl,
+      authToken: process.env.TURSO_AUTH_TOKEN,
     })
   })
 })

@@ -8,6 +8,9 @@ import { goalWorkflow } from '../workflows/goalWorkflow'
 // Voice functionality temporarily disabled for deployment compatibility
 // import { OpenAIRealtimeVoice } from '@mastra/voice-openai-realtime'
 
+// Use in-memory storage for serverless environments (Vercel)
+const memoryStorageUrl = process.env.TURSO_DATABASE_URL || ':memory:'
+
 export const generalAgent = new Agent({
     name: 'LegianOS General Agent',
     instructions: `
@@ -91,8 +94,8 @@ export const generalAgent = new Agent({
             lastMessages: 20 // Increased for comprehensive goal conversations
         },
         storage: new LibSQLStore({
-            // Persistent storage dedicated to goal tracking
-            url: "file:../legianos_agent_memory.db",
+            url: memoryStorageUrl,
+            authToken: process.env.TURSO_AUTH_TOKEN,
         }),
     }),
     // Voice functionality temporarily disabled for deployment compatibility
