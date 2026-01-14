@@ -84,7 +84,7 @@ export default function ChatPage() {
   const [goals, setGoals] = useState<Goal[]>([])
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const agentAvatarSrc = useMemo(() => "/avatars/machina-avatar.mp4", [])
+  const agentAvatarSrc = useMemo(() => "/machina-avatar.mp4", [])
 
   useEffect(() => {
     if (scrollRef.current) {

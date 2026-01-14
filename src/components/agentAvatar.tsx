@@ -19,19 +19,19 @@ const sizeClasses = {
 // Avatar configurations for different agents
 const avatarConfigs = {
   legianos: {
-    videoUrl: "/avatars/machina-avatar.mp4",
+    videoUrl: "/machina-avatar.mp4",
     fallbackColor: "#2a2a2a",
     icon: "L",
     name: "LegianOS"
   },
   general: {
-    videoUrl: "/avatars/machina-avatar.mp4",
+    videoUrl: "/machina-avatar.mp4",
     fallbackColor: "#333333",
     icon: "A",
     name: "Assistant"
   },
   user: {
-    videoUrl: "/avatars/machina-avatar.mp4",
+    videoUrl: "/machina-avatar.mp4",
     fallbackColor: "#1e1e1e",
     icon: "U",
     name: "User"
