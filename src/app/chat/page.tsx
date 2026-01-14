@@ -7,7 +7,6 @@ import { AgentAvatar } from "@/components/agentAvatar"
 import { Message, MessageAvatar, MessageContent } from "@/components/promptKit/Message"
 import { Markdown } from "@/components/promptKit/Markdown"
 import { PromptSuggestion } from "@/components/promptKit/promptSuggestion"
-import { Tool, ToolPart } from "@/components/promptKit/Tool"
 import { ImageAttachment } from "@/lib/attachments"
 import { Goal } from "@/lib/goalTypes"
 
@@ -19,37 +18,12 @@ type ChatMessage = {
   attachments?: { name: string }[]
 }
 
-type ToolEvent = ToolPart & { id: string; label?: string }
-
 const defaultMessages: ChatMessage[] = [
   {
     id: "welcome",
     role: "assistant",
     content: "Welcome back to LegianOS. Share a goal or drop an image and I will build milestones, track tools, and keep everything in sync.",
     format: "markdown"
-  }
-]
-
-const baseToolEvents: ToolEvent[] = [
-  {
-    id: "tool-goal-check",
-    type: "checkGoals",
-    state: "output-available",
-    input: { action: "check goals", scope: "active" },
-    output: { activeGoals: 3, nextMilestone: "Upload portfolio case study" }
-  },
-  {
-    id: "tool-milestone",
-    type: "planMilestones",
-    state: "output-available",
-    input: { cadence: "weekly", horizon: "30 days" },
-    output: { milestones: 4, risk: "timeline stretch if no weekly check-in" }
-  },
-  {
-    id: "tool-export",
-    type: "exportProfile",
-    state: "output-streaming",
-    input: { format: "markdown", include: ["progress", "risks"] }
   }
 ]
 
@@ -77,10 +51,8 @@ async function fileToAttachment(file: File): Promise<ImageAttachment> {
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>(defaultMessages)
-  const [toolEvents, setToolEvents] = useState<ToolEvent[]>(baseToolEvents)
   const [sessionId, setSessionId] = useState(() => `legianos-${Date.now()}`)
   const [assistantDraft, setAssistantDraft] = useState("")
-  const [isStreaming, setIsStreaming] = useState(false)
   const [goals, setGoals] = useState<Goal[]>([])
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -97,7 +69,6 @@ export default function ChatPage() {
 
   const resetSession = () => {
     setMessages(defaultMessages)
-    setToolEvents(baseToolEvents)
     setAssistantDraft("")
     setGoals([])
     setSessionId(`legianos-${Date.now()}`)
@@ -147,13 +118,6 @@ export default function ChatPage() {
 
     setMessages(prev => [...prev, userMessage])
     setAssistantDraft("LegianOS is processing your request...")
-    setIsStreaming(true)
-
-    const activeToolId = `tool-${Date.now()}`
-    setToolEvents(prev => [
-      { id: activeToolId, type: "goalIntake", state: "input-streaming", input: { message, attachments: allAttachments.length, extendedThinking: isThinkingEnabled } },
-      ...prev
-    ])
 
     try {
       const response = await fetch("/api/chat", {
@@ -187,7 +151,6 @@ export default function ChatPage() {
       }
       const reply = (data.reply as string) || "I wasn't able to generate a response, but the request was received."
       const goalProfile = data.goalProfile as Goal | undefined
-      const nextSteps = (data.nextSteps as string[]) || []
 
       const assistantMessage: ChatMessage = {
         id: `assistant-${Date.now()}`,
@@ -202,21 +165,6 @@ export default function ChatPage() {
       if (goalProfile) {
         setGoals(prevGoals => [...prevGoals.filter(g => g.id !== goalProfile.id), goalProfile])
       }
-
-      setToolEvents(prev =>
-        prev.map(tool =>
-          tool.id === activeToolId
-            ? {
-                ...tool,
-                state: "output-available",
-                output: {
-                  goalProfile: goalProfile ? goalProfile.title || "Goal captured" : "Conversation updated",
-                  nextSteps
-                }
-              }
-            : tool
-        )
-      )
     } catch (error) {
       setAssistantDraft("")
       const errorMessage = error instanceof Error ? error.message : "Unknown error"
@@ -229,15 +177,6 @@ export default function ChatPage() {
           format: "markdown"
         }
       ])
-      setToolEvents(prev =>
-        prev.map(tool =>
-          tool.id === activeToolId
-            ? { ...tool, state: "output-error", errorText: errorMessage || "Failed to reach LegianOS agent" }
-            : tool
-        )
-      )
-    } finally {
-      setIsStreaming(false)
     }
   }
 
@@ -355,33 +294,37 @@ export default function ChatPage() {
                   <div className="flex items-center gap-3">
                     <AgentAvatar agentType="legianos" size="sm" className="border-none shadow-[0_8px_24px_rgba(0,0,0,0.35)]" />
                     <div>
-                      <p className="text-sm text-gray-300">Tool Calls</p>
-                      <p className="text-base font-semibold">Live execution</p>
+                      <p className="text-sm text-gray-300">Your Goals</p>
+                      <p className="text-base font-semibold">Track Progress</p>
                     </div>
                   </div>
-                  <span className="text-xs text-gray-400">Images supported</span>
                 </div>
-                <div className="space-y-3">
-                  {toolEvents.map(event => (
-                    <Tool key={event.id} toolPart={event} className="w-full" />
-                  ))}
-                </div>
+                {goals.length === 0 ? (
+                  <p className="text-sm text-gray-400">No goals yet. Start a conversation to create your first goal.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {goals.map(goal => (
+                      <div key={goal.id} className="border border-white/10 rounded-2xl px-3 py-2 bg-white/5">
+                        <p className="font-semibold">{goal.title}</p>
+                        <p className="text-xs text-gray-400">{goal.description || "LegianOS captured this goal."}</p>
+                        {goal.milestones && goal.milestones.length > 0 && (
+                          <div className="mt-2 space-y-1">
+                            {goal.milestones.slice(0, 3).map(milestone => (
+                              <div key={milestone.id} className="flex items-center gap-2 text-xs">
+                                <span className={`w-2 h-2 rounded-full ${milestone.status === 'completed' ? 'bg-green-400' : milestone.status === 'in_progress' ? 'bg-yellow-400' : 'bg-gray-500'}`} />
+                                <span className="text-gray-300">{milestone.title}</span>
+                              </div>
+                            ))}
+                            {goal.milestones.length > 3 && (
+                              <p className="text-xs text-gray-500">+{goal.milestones.length - 3} more milestones</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-
-              {goals.length > 0 && (
-                <div className="rounded-3xl border border-white/15 bg-white/5 p-4 shadow-[0_16px_45px_rgba(0,0,0,0.35)] space-y-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-300">Active Goals</p>
-                    <span className="text-xs text-gray-400">Session scoped</span>
-                  </div>
-                  {goals.map(goal => (
-                    <div key={goal.id} className="border border-white/10 rounded-2xl px-3 py-2 bg-white/5">
-                      <p className="font-semibold">{goal.title}</p>
-                      <p className="text-xs text-gray-400">{goal.description || "LegianOS captured this goal."}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
             </aside>
           </div>
         </div>
