@@ -1,0 +1,34 @@
+
+import { Mastra } from '@mastra/core/mastra'
+import { PinoLogger } from '@mastra/loggers'
+import { LibSQLStore } from '@mastra/libsql'
+import { goalWorkflow } from './workflows/goalWorkflow'
+import { generalAgent } from './agents/general-agent'
+import { machinaAgent } from './agents/machinaAgent'
+
+
+export const mastra = new Mastra({
+    workflows: {
+        "goal-workflow": goalWorkflow
+    },
+    agents: {
+        "generalAgent": generalAgent,
+        "machinaAgent": machinaAgent
+    },
+    storage: new LibSQLStore({
+        // stores observability, scores, and goal data - persistent storage for goal management
+        url: "file:../mastra_storage.db",
+    }),
+    logger: new PinoLogger({
+        name: 'Machina',
+        level: 'info',
+    }),
+    telemetry: {
+        // Telemetry is deprecated and will be removed in the Nov 4th release
+        enabled: false,
+    },
+    observability: {
+        // Enables DefaultExporter and CloudExporter for AI tracing
+        default: { enabled: false },
+    },
+})
