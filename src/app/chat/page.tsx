@@ -167,25 +167,40 @@ export default function ChatPage() {
         })
       })
 
-      const data = await response.json()
+      // Safely parse JSON response, handling empty or malformed responses
+      let data: Record<string, unknown>
+      try {
+        const responseText = await response.text()
+        if (!responseText || responseText.trim() === "") {
+          throw new Error("Server returned an empty response")
+        }
+        data = JSON.parse(responseText)
+      } catch (parseError) {
+        const parseErrorMsg = parseError instanceof Error ? parseError.message : "Unknown parse error"
+        throw new Error(`Failed to parse server response: ${parseErrorMsg}`)
+      }
 
       if (!response.ok) {
-        const errorDetail = data.details || data.error || "Unknown error"
-        const hint = data.hint || ""
+        const errorDetail = (data.details || data.error || "Unknown error") as string
+        const hint = (data.hint || "") as string
         throw new Error(`${errorDetail}${hint ? ` (${hint})` : ""}`)
       }
+      const reply = (data.reply as string) || "I wasn't able to generate a response, but the request was received."
+      const goalProfile = data.goalProfile as Goal | undefined
+      const nextSteps = (data.nextSteps as string[]) || []
+
       const assistantMessage: ChatMessage = {
         id: `assistant-${Date.now()}`,
         role: "assistant",
-        content: data.reply || "I wasn't able to generate a response, but the request was received.",
+        content: reply,
         format: "markdown"
       }
 
       setMessages(prev => [...prev, assistantMessage])
       setAssistantDraft("")
 
-      if (data.goalProfile) {
-        setGoals(prevGoals => [...prevGoals.filter(g => g.id !== data.goalProfile.id), data.goalProfile])
+      if (goalProfile) {
+        setGoals(prevGoals => [...prevGoals.filter(g => g.id !== goalProfile.id), goalProfile])
       }
 
       setToolEvents(prev =>
@@ -195,8 +210,8 @@ export default function ChatPage() {
                 ...tool,
                 state: "output-available",
                 output: {
-                  goalProfile: data.goalProfile ? data.goalProfile.title || "Goal captured" : "Conversation updated",
-                  nextSteps: data.nextSteps || []
+                  goalProfile: goalProfile ? goalProfile.title || "Goal captured" : "Conversation updated",
+                  nextSteps
                 }
               }
             : tool
