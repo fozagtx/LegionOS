@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useMemo, useState } from "react"
-import { Bot, ChevronLeft, ChevronRight, Download, MessageSquare, Settings, Sparkles, Target, ListChecks, Rocket } from "lucide-react"
+import { Bot, ChevronLeft, ChevronRight, Download, MessageSquare, Settings, Sparkles, Target, ListChecks, Rocket, RotateCcw, Home } from "lucide-react"
 import clsx from "clsx"
 
 type SidebarItem = {
@@ -12,14 +12,16 @@ type SidebarItem = {
   badge?: string
   active?: boolean
   hint?: string
+  onClick?: () => void
 }
 
 interface ChatSidebarProps {
   sessionId: string
   goalsCount: number
+  onResetSession: () => void
 }
 
-export function ChatSidebar({ sessionId, goalsCount }: ChatSidebarProps) {
+export function ChatSidebar({ sessionId, goalsCount, onResetSession }: ChatSidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
 
   const primaryNav: SidebarItem[] = useMemo(
@@ -33,7 +35,8 @@ export function ChatSidebar({ sessionId, goalsCount }: ChatSidebarProps) {
   )
 
   const secondaryNav: SidebarItem[] = [
-    // intentionally left empty per design update
+    { label: "Clear Session", icon: RotateCcw, onClick: onResetSession, hint: "Reset the current chat session" },
+    { label: "Back to Landing", href: "/", icon: Home, hint: "Return to the landing page" }
   ]
 
   return (
@@ -77,7 +80,7 @@ export function ChatSidebar({ sessionId, goalsCount }: ChatSidebarProps) {
         </SidebarSection>
 
         {secondaryNav.length > 0 && (
-          <SidebarSection title="Workspace" collapsed={collapsed}>
+          <SidebarSection title="Actions" collapsed={collapsed}>
             {secondaryNav.map(item => (
               <SidebarButton key={item.label} item={item} collapsed={collapsed} />
             ))}
@@ -127,6 +130,14 @@ function SidebarButton({ item, collapsed }: { item: SidebarItem; collapsed: bool
       <Link href={item.href} className="block">
         {content}
       </Link>
+    )
+  }
+
+  if (item.onClick) {
+    return (
+      <button onClick={item.onClick} className="block w-full text-left">
+        {content}
+      </button>
     )
   }
 

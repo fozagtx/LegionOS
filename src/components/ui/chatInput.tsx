@@ -265,14 +265,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
     const hasContent = message.trim() || files.length > 0 || pastedContent.length > 0;
     const inputActive = isInputFocused;
     const sendButtonStyle: React.CSSProperties = (hasContent || inputActive) ? {
-        backgroundColor: '#2D1DFF',
+        backgroundColor: '#000000',
         color: '#ffffff',
-        border: '1px solid #2517e0',
-        boxShadow: '0 10px 18px rgba(45,29,255,0.25)'
+        border: 'none',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
     } : {
-        backgroundColor: '#e6e8ff',
-        color: '#8f95f5',
-        border: '1px solid #d9dcff',
+        backgroundColor: '#6b7280',
+        color: '#ffffff',
+        border: 'none',
         opacity: 0.9
     };
 

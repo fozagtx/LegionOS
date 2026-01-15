@@ -21,7 +21,7 @@ const defaultMessages: ChatMessage[] = [
   {
     id: "welcome",
     role: "assistant",
-    content: "Welcome back to LegianOS. Share a goal or drop an image and I will build milestones, track tools, and keep everything in sync.",
+    content: "Build clarity, Setup Systems, Track them.",
     format: "markdown"
   }
 ]
@@ -197,23 +197,9 @@ export default function ChatPage() {
   return (
     <div className="min-h-screen bg-[#e8e8f6] text-[#111827]">
       <div className="flex gap-6 px-4 md:px-8 py-6">
-        <ChatSidebar sessionId={sessionId} goalsCount={0} />
+        <ChatSidebar sessionId={sessionId} goalsCount={0} onResetSession={resetSession} />
 
         <div className="flex-1 flex flex-col">
-          <div className="max-w-6xl mx-auto w-full flex items-center justify-end gap-3 pb-4">
-            <button
-              onClick={resetSession}
-              className="px-3 py-2 rounded-xl text-sm font-medium border border-[#e3e5ef] text-[#374151] hover:bg-[#f3f4f6] transition"
-            >
-              Clear Session
-            </button>
-            <Link
-              href="/"
-              className="px-4 py-2 rounded-xl text-sm font-semibold bg-[#2D1DFF] text-white shadow-[0_12px_24px_rgba(45,29,255,0.3)] hover:-translate-y-[1px] transition border border-[#2D1DFF]"
-            >
-              Back to Landing
-            </Link>
-          </div>
 
           <main className="flex-1 flex justify-center">
             <div className="w-full max-w-5xl px-2 md:px-0">
@@ -224,26 +210,6 @@ export default function ChatPage() {
                     Live session • {sessionId.split('-').pop()}
                   </div>
                   <div className="text-xs text-gray-500">Auto-scroll enabled</div>
-                </div>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <button
-                    onClick={triggerKickoff}
-                    className="px-3 py-2 rounded-lg text-sm font-semibold bg-[#2D1DFF] text-white shadow-[0_8px_18px_rgba(45,29,255,0.25)] hover:-translate-y-[1px] transition"
-                  >
-                    Kickoff 90-Day Plan
-                  </button>
-                  <button
-                    onClick={triggerWeeklyPlan}
-                    className="px-3 py-2 rounded-lg text-sm font-semibold border border-[#2D1DFF] text-[#111827] bg-white/90 hover:bg-[#f1f5ff] transition"
-                  >
-                    Weekly Plan
-                  </button>
-                  <button
-                    onClick={triggerDailyLog}
-                    className="px-3 py-2 rounded-lg text-sm font-semibold border border-[#d7d0ff] text-[#2D1DFF] bg-white/90 hover:bg-[#f4f1ff] transition"
-                  >
-                    Daily Log
-                  </button>
                 </div>
                 <div className="flex-1 overflow-y-auto custom-scrollbar space-y-6 pr-1" ref={scrollRef}>
                   {messages.map(msg => (
