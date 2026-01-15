@@ -3,6 +3,7 @@ import { z } from 'zod'
 import {
   Goal,
   GoalProfile,
+  goalSchema,
   ExportFormat,
   MilestoneStatus,
   calculateGoalProgress,
@@ -13,7 +14,7 @@ export const goalExportTool = createTool({
   id: 'export-goal',
   description: 'Export goal profiles in various formats (JSON, Markdown, PDF-ready) for download',
   inputSchema: z.object({
-    goals: z.array(z.any()).describe('Array of goal objects to export'),
+    goals: z.array(goalSchema).describe('Array of goal objects to export'),
     format: z.nativeEnum(ExportFormat).describe('Export format'),
     includeProgress: z.boolean().default(true).describe('Include progress information'),
     includeMilestones: z.boolean().default(true).describe('Include milestone details'),

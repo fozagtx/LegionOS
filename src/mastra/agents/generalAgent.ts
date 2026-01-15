@@ -3,6 +3,9 @@ import { Memory } from '@mastra/memory'
 import { LibSQLStore } from '@mastra/libsql'
 import { goalCreationTool } from '../tools/goalCreationTool'
 import { goalExportTool } from '../tools/goalExportTool'
+import { identityClarifierTool } from '../tools/identityClarifierTool'
+import { weeklyPlannerTool } from '../tools/weeklyPlannerTool'
+import { consistencyTrackerTool } from '../tools/consistencyTrackerTool'
 
 export const generalAgent = new Agent({
     name: 'LegianOS Goal Management Agent',
@@ -50,7 +53,10 @@ export const generalAgent = new Agent({
     model: 'openai/gpt-4o-mini',
     tools: {
         goalCreationTool,
-        goalExportTool
+        goalExportTool,
+        identityClarifierTool,
+        weeklyPlannerTool,
+        consistencyTrackerTool
     },
     memory: new Memory({
         options: {

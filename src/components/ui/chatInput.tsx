@@ -265,15 +265,15 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
     const hasContent = message.trim() || files.length > 0 || pastedContent.length > 0;
     const inputActive = isInputFocused;
     const sendButtonStyle: React.CSSProperties = (hasContent || inputActive) ? {
-        backgroundColor: '#0e0e0e',
+        backgroundColor: '#2D1DFF',
         color: '#ffffff',
-        border: '1px solid #000000',
-        boxShadow: '0 10px 24px rgba(0, 0, 0, 0.45)'
+        border: '1px solid #2517e0',
+        boxShadow: '0 10px 18px rgba(45,29,255,0.25)'
     } : {
-        backgroundColor: '#f1f1f1',
-        color: '#7a7a7a',
-        border: '1px solid #d7d7d7',
-        opacity: 0.75
+        backgroundColor: '#e6e8ff',
+        color: '#8f95f5',
+        border: '1px solid #d9dcff',
+        opacity: 0.9
     };
 
     return (
@@ -285,14 +285,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
         >
             {/* Main Container - monochrome shell */}
             <div className={`
-                !box-content flex flex-col mx-2 md:mx-0 items-stretch transition-all duration-200 relative z-10 rounded-2xl cursor-text border
-                shadow-[0_0_18px_rgba(0,0,0,0.25)] hover:shadow-[0_0_22px_rgba(0,0,0,0.3)]
-                focus-within:shadow-[0_0_26px_rgba(0,0,0,0.35)]
-                bg-white font-sans antialiased backdrop-blur
+                !box-content flex flex-col mx-2 md:mx-0 items-stretch transition-all duration-200 relative z-10 rounded-3xl cursor-text border
+                shadow-[0_10px_30px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_34px_rgba(0,0,0,0.12)]
+                focus-within:shadow-[0_14px_36px_rgba(0,0,0,0.14)]
+                bg-white/85 border-white/50 backdrop-blur-md font-sans antialiased
             `}
                 style={{
-                    backgroundColor: 'rgba(255,255,255,0.94)',
-                    borderColor: 'rgba(255,255,255,0.35)'
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: 'rgba(255,255,255,0.6)'
                 }}
             >
 
@@ -337,10 +337,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
                                 placeholder="How can I help you today?"
                                 className="w-full bg-transparent border-0 outline-none resize-none overflow-hidden py-0 leading-relaxed block font-normal antialiased text-[16px] chat-textarea"
                                 style={{
-                                    color: '#000000',
+                                    color: '#111827',
                                     minHeight: '1.5em',
                                     fontSize: '16px',
-                                    backgroundColor: '#f7f7f7'
+                                    backgroundColor: '#ffffff'
                                 }}
                                 rows={1}
                                 autoFocus
@@ -356,7 +356,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
                             {/* Toggle Menu / Attach Button - Compact & Subtle */}
                             <button
                                 onClick={() => fileInputRef.current?.click()}
-                                className="inline-flex items-center justify-center relative shrink-0 transition-colors duration-200 h-8 w-8 rounded-lg active:scale-95 text-india-green-400 hover:text-india-green-600 hover:bg-medium-jungle-200 dark:text-light-green-400 dark:hover:text-light-green-200 dark:hover:bg-medium-jungle-400"
+                                className="inline-flex items-center justify-center relative shrink-0 transition-colors duration-200 h-9 w-9 rounded-lg active:scale-95 text-[#6b7280] hover:text-[#111827] hover:bg-[#eef0f7]"
                                 type="button"
                                 aria-label="Toggle menu"
                             >
@@ -367,10 +367,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
                             <div className="flex shrink min-w-8 !shrink-0">
                                 <button
                                     onClick={() => setIsThinkingEnabled(!isThinkingEnabled)}
-                                    className={`transition-all duration-200 h-8 w-8 flex items-center justify-center rounded-lg active:scale-95
+                                    className={`transition-all duration-200 h-9 w-9 flex items-center justify-center rounded-lg active:scale-95
                                         ${isThinkingEnabled
-                                            ? 'text-light-green-600 bg-light-green-500/10 dark:text-light-green-400 dark:bg-light-green-500/20'
-                                            : 'text-india-green-400 hover:text-india-green-600 hover:bg-medium-jungle-200 dark:text-light-green-400 dark:hover:text-light-green-200 dark:hover:bg-medium-jungle-400'}
+                                            ? 'text-[#2D1DFF] bg-[#edeaff]'
+                                            : 'text-[#6b7280] hover:text-[#111827] hover:bg-[#eef0f7]'}
                                     `}
                                     aria-pressed={isThinkingEnabled}
                                     aria-label="Extended thinking"
@@ -394,11 +394,12 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
                                 <button
                                     onClick={handleSend}
                                     disabled={!hasContent}
-                                    className="inline-flex items-center justify-center relative shrink-0 transition-all h-8 w-8 rounded-xl active:scale-95 border disabled:cursor-not-allowed hover:-translate-y-[1px]"
+                                    className="inline-flex items-center justify-center relative shrink-0 transition-all h-10 w-24 rounded-xl active:scale-95 border disabled:cursor-not-allowed hover:-translate-y-[1px] font-semibold text-sm"
                                     style={sendButtonStyle}
                                     type="button"
                                     aria-label="Send message"
                                 >
+                                    <span className="mr-2">Submit</span>
                                     <Icons.ArrowUp className="w-4 h-4" />
                                 </button>
                             </div>
@@ -409,9 +410,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
 
             {/* Drag Overlay */}
             {isDragging && (
-                <div className="absolute inset-0 bg-medium-jungle-200/90 border-2 border-dashed border-light-green-600 rounded-2xl z-50 flex flex-col items-center justify-center backdrop-blur-sm pointer-events-none">
-                    <Icons.Archive className="w-10 h-10 text-light-green-600 mb-2 animate-bounce" />
-                    <p className="text-light-green-600 font-medium">Drop files to upload</p>
+                <div className="absolute inset-0 bg-[#edeaff]/80 border-2 border-dashed border-[#2D1DFF] rounded-2xl z-50 flex flex-col items-center justify-center backdrop-blur-sm pointer-events-none">
+                    <Icons.Archive className="w-10 h-10 text-[#2D1DFF] mb-2 animate-bounce" />
+                    <p className="text-[#2D1DFF] font-medium">Drop files to upload</p>
                 </div>
             )}
 
@@ -428,7 +429,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
             />
 
             <div className="text-center mt-4">
-                <p className="text-xs text-india-green-400 dark:text-light-green-500">
+                <p className="text-xs text-[#6b7280]">
                     AI can make mistakes. Please check important information.
                 </p>
             </div>

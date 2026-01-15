@@ -4,11 +4,10 @@ import React, { useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import ChatInput from "@/components/ui/chatInput"
 import { AgentAvatar } from "@/components/agentAvatar"
+import { ChatSidebar } from "@/components/chatSidebar"
 import { Message, MessageAvatar, MessageContent } from "@/components/promptKit/Message"
 import { Markdown } from "@/components/promptKit/Markdown"
-import { PromptSuggestion } from "@/components/promptKit/promptSuggestion"
 import { ImageAttachment } from "@/lib/attachments"
-import { Goal } from "@/lib/goalTypes"
 
 type ChatMessage = {
   id: string
@@ -25,12 +24,6 @@ const defaultMessages: ChatMessage[] = [
     content: "Welcome back to LegianOS. Share a goal or drop an image and I will build milestones, track tools, and keep everything in sync.",
     format: "markdown"
   }
-]
-
-const promptPresets = [
-  "Draft a 4-week fitness goal with milestones",
-  "Create a career progression plan with checkpoints",
-  "Summarize my goals and export a markdown profile"
 ]
 
 async function fileToAttachment(file: File): Promise<ImageAttachment> {
@@ -53,7 +46,6 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>(defaultMessages)
   const [sessionId, setSessionId] = useState(() => `legianos-${Date.now()}`)
   const [assistantDraft, setAssistantDraft] = useState("")
-  const [goals, setGoals] = useState<Goal[]>([])
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const agentAvatarSrc = useMemo(() => "/machina-avatar.mp4", [])
@@ -67,10 +59,36 @@ export default function ChatPage() {
     }
   }, [messages, assistantDraft])
 
+  const triggerKickoff = () => {
+    handleSendMessage({
+      message: "Run the 90-day kickoff: clarify my identity/why, set the single daily compounding action, and prepare my 90-day goal.",
+      files: [],
+      pastedContent: [],
+      isThinkingEnabled: true
+    })
+  }
+
+  const triggerWeeklyPlan = () => {
+    handleSendMessage({
+      message: "Start the weekly planning workflow: pull my current context and return a 5-item must-do list for this week.",
+      files: [],
+      pastedContent: [],
+      isThinkingEnabled: false
+    })
+  }
+
+  const triggerDailyLog = () => {
+    handleSendMessage({
+      message: "Log today in the daily execution workflow: mark status, blockers, rest, and update my streak.",
+      files: [],
+      pastedContent: [],
+      isThinkingEnabled: false
+    })
+  }
+
   const resetSession = () => {
     setMessages(defaultMessages)
     setAssistantDraft("")
-    setGoals([])
     setSessionId(`legianos-${Date.now()}`)
   }
 
@@ -150,7 +168,6 @@ export default function ChatPage() {
         throw new Error(`${errorDetail}${hint ? ` (${hint})` : ""}`)
       }
       const reply = (data.reply as string) || "I wasn't able to generate a response, but the request was received."
-      const goalProfile = data.goalProfile as Goal | undefined
 
       const assistantMessage: ChatMessage = {
         id: `assistant-${Date.now()}`,
@@ -162,9 +179,6 @@ export default function ChatPage() {
       setMessages(prev => [...prev, assistantMessage])
       setAssistantDraft("")
 
-      if (goalProfile) {
-        setGoals(prevGoals => [...prevGoals.filter(g => g.id !== goalProfile.id), goalProfile])
-      }
     } catch (error) {
       setAssistantDraft("")
       const errorMessage = error instanceof Error ? error.message : "Unknown error"
@@ -181,44 +195,55 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0b0f] text-white flex flex-col">
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0b0b0f]/90 backdrop-blur">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <AgentAvatar agentType="legianos" size="sm" className="shadow-[0_10px_30px_rgba(0,0,0,0.35)] border-none" />
-            <div>
-              <p className="text-sm text-gray-300">LegianOS</p>
-              <p className="font-semibold text-lg leading-tight">Goal Operations Console</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-[#e8e8f6] text-[#111827]">
+      <div className="flex gap-6 px-4 md:px-8 py-6">
+        <ChatSidebar sessionId={sessionId} goalsCount={0} />
+
+        <div className="flex-1 flex flex-col">
+          <div className="max-w-6xl mx-auto w-full flex items-center justify-end gap-3 pb-4">
             <button
               onClick={resetSession}
-              className="px-3 py-2 rounded-xl text-sm font-medium border border-white/15 text-white/80 hover:text-white hover:bg-white/5 transition"
+              className="px-3 py-2 rounded-xl text-sm font-medium border border-[#e3e5ef] text-[#374151] hover:bg-[#f3f4f6] transition"
             >
               Clear Session
             </button>
             <Link
               href="/"
-              className="px-4 py-2 rounded-xl text-sm font-semibold bg-white text-black shadow-[0_12px_30px_rgba(0,0,0,0.35)] hover:-translate-y-[1px] transition"
+              className="px-4 py-2 rounded-xl text-sm font-semibold bg-[#2D1DFF] text-white shadow-[0_12px_24px_rgba(45,29,255,0.3)] hover:-translate-y-[1px] transition border border-[#2D1DFF]"
             >
               Back to Landing
             </Link>
           </div>
-        </div>
-      </header>
 
-      <main className="flex-1">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col gap-6">
-          <div className="grid lg:grid-cols-[1.5fr_1fr] gap-6">
-            <div className="flex flex-col gap-4">
-              <div className="rounded-3xl border border-white/15 bg-white/5 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.35)] min-h-[60vh] flex flex-col">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2 text-sm text-gray-300">
-                    <span className="w-2 h-2 rounded-full bg-green-400" />
-                    LO • {sessionId.split('-').pop()}
+          <main className="flex-1 flex justify-center">
+            <div className="w-full max-w-5xl px-2 md:px-0">
+              <div className="rounded-3xl border border-white/50 bg-white/85 backdrop-blur-md p-5 shadow-[0_16px_40px_rgba(0,0,0,0.08)] min-h-[60vh] flex flex-col">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <span className="w-2 h-2 rounded-full bg-[#34d399]" />
+                    Live session • {sessionId.split('-').pop()}
                   </div>
-                  <div className="text-xs text-gray-400">Auto-scroll enabled</div>
+                  <div className="text-xs text-gray-500">Auto-scroll enabled</div>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <button
+                    onClick={triggerKickoff}
+                    className="px-3 py-2 rounded-lg text-sm font-semibold bg-[#2D1DFF] text-white shadow-[0_8px_18px_rgba(45,29,255,0.25)] hover:-translate-y-[1px] transition"
+                  >
+                    Kickoff 90-Day Plan
+                  </button>
+                  <button
+                    onClick={triggerWeeklyPlan}
+                    className="px-3 py-2 rounded-lg text-sm font-semibold border border-[#2D1DFF] text-[#111827] bg-white/90 hover:bg-[#f1f5ff] transition"
+                  >
+                    Weekly Plan
+                  </button>
+                  <button
+                    onClick={triggerDailyLog}
+                    className="px-3 py-2 rounded-lg text-sm font-semibold border border-[#d7d0ff] text-[#2D1DFF] bg-white/90 hover:bg-[#f4f1ff] transition"
+                  >
+                    Daily Log
+                  </button>
                 </div>
                 <div className="flex-1 overflow-y-auto custom-scrollbar space-y-6 pr-1" ref={scrollRef}>
                   {messages.map(msg => (
@@ -233,22 +258,22 @@ export default function ChatPage() {
                           src={agentAvatarSrc}
                           alt="LegianOS"
                           fallback="L"
-                          className="w-12 h-12 border-none shadow-[0_10px_25px_rgba(0,0,0,0.3)]"
+                          className="w-12 h-12 border-none shadow-[0_10px_18px_rgba(0,0,0,0.12)]"
                         />
                       )}
                       <MessageContent
                         markdown={msg.format === "markdown"}
                         className={
                           msg.role === "assistant"
-                            ? "bg-transparent border border-white/12 text-white max-w-3xl"
-                            : "bg-white text-black border-[rgba(0,0,0,0.08)] max-w-3xl"
+                            ? "bg-[#0f172a] text-white border border-white/20 max-w-3xl"
+                            : "bg-white/80 text-[#111827] border-white/60 max-w-3xl backdrop-blur-md"
                         }
                       >
                         {msg.format === "markdown" ? <Markdown>{msg.content}</Markdown> : msg.content}
                         {msg.attachments && msg.attachments.length > 0 && (
                           <div className="mt-2 flex flex-wrap gap-2 text-xs">
                             {msg.attachments.map((att, idx) => (
-                              <span key={`${att.name}-${idx}`} className="px-2 py-1 rounded-full border border-white/20 text-white/80 bg-white/5">
+                              <span key={`${att.name}-${idx}`} className="px-2 py-1 rounded-full border border-[#e5e7eb] text-[#374151] bg-white">
                                 {att.name}
                               </span>
                             ))}
@@ -264,9 +289,9 @@ export default function ChatPage() {
                         src={agentAvatarSrc}
                         alt="LegianOS"
                         fallback="L"
-                        className="w-12 h-12 border-none shadow-[0_10px_25px_rgba(0,0,0,0.3)]"
+                        className="w-12 h-12 border-none shadow-[0_10px_18px_rgba(0,0,0,0.12)]"
                       />
-                      <MessageContent markdown className="bg-transparent border border-white/12 text-white max-w-3xl">
+                      <MessageContent markdown className="bg-transparent border border-[#e3e5ef] text-[#111827] max-w-3xl">
                         <Markdown>{assistantDraft}</Markdown>
                       </MessageContent>
                     </Message>
@@ -274,56 +299,13 @@ export default function ChatPage() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2">
-                {promptPresets.map(prompt => (
-                  <PromptSuggestion
-                    key={prompt}
-                    onClick={() => handleSendMessage({ message: prompt, files: [], pastedContent: [], isThinkingEnabled: false })}
-                  >
-                    {prompt}
-                  </PromptSuggestion>
-                ))}
+              <div className="mt-4">
+                <ChatInput onSendMessage={handleSendMessage} />
               </div>
-
-              <ChatInput onSendMessage={handleSendMessage} />
             </div>
-
-            <aside className="flex flex-col gap-4">
-              <div className="rounded-3xl border border-white/15 bg-white/5 p-4 shadow-[0_16px_45px_rgba(0,0,0,0.35)] space-y-3">
-                <div>
-                  <p className="text-sm text-gray-300">Your Goals</p>
-                  <p className="text-base font-semibold">Track Progress</p>
-                </div>
-                {goals.length === 0 ? (
-                  <p className="text-sm text-gray-400">No goals yet. Start a conversation to create your first goal.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {goals.map(goal => (
-                      <div key={goal.id} className="border border-white/10 rounded-2xl px-3 py-2 bg-white/5">
-                        <p className="font-semibold">{goal.title}</p>
-                        <p className="text-xs text-gray-400">{goal.description || "LegianOS captured this goal."}</p>
-                        {goal.milestones && goal.milestones.length > 0 && (
-                          <div className="mt-2 space-y-1">
-                            {goal.milestones.slice(0, 3).map(milestone => (
-                              <div key={milestone.id} className="flex items-center gap-2 text-xs">
-                                <span className={`w-2 h-2 rounded-full ${milestone.status === 'completed' ? 'bg-green-400' : milestone.status === 'in_progress' ? 'bg-yellow-400' : 'bg-gray-500'}`} />
-                                <span className="text-gray-300">{milestone.title}</span>
-                              </div>
-                            ))}
-                            {goal.milestones.length > 3 && (
-                              <p className="text-xs text-gray-500">+{goal.milestones.length - 3} more milestones</p>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </aside>
-          </div>
+          </main>
         </div>
-      </main>
+      </div>
     </div>
   )
 }
